@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>My Map</title>
+    <title>County Map of New Mexico</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@^6.10.0/dist/maplibre-gl.css" />
     <style>
@@ -9,14 +9,43 @@
         #map { position: absolute; top: 0; right: 0; bottom: 0; left: 0; }
     </style>
 </head>
+</head>
+<header>
+    <h1>County Map of New Mexico</h1>
+    <p>County Map of New Mexico with Population Data from 2018. Source from NM RGIS Directory and map designed by Sophia C for GISS-566-40.</p>
+</header>
+
+<div id="map"></div>
+
+<style>
+    header {
+        position: fixed;
+        top: 10px;
+        left: 10px;
+        z-index: 1;
+        background-color: rgba(255, 255, 255, 0.8);
+        padding: 10px;
+        border-radius: 5px;
+        text-align: left;
+        font-family: Garamond, serif;
+    }
+
+    header h1 {
+        margin: 0;
+    }
+
+    header p {
+        margin: 5px 0 0 0;
+    }
+</style>
 <body>
     <div id="map"></div>
 
     <script type="module">
     // Customizations:
-    // 1. 
-    // 2. 
-    // 3.
+    // 1. I changed the zoom setting along with the pitch to give it more pazzaz.
+    // 2. I changed the navigation controls to show up on the top left becuase thats wehre it always goes.
+    // 3. I changed the title to use the garamond font because it looks good.
 
         import * as maplibregl from 'https://unpkg.com/maplibre-gl@^6.10.0/dist/maplibre-gl.mjs';
 
@@ -24,9 +53,9 @@
         const map = new maplibregl.Map({
             container: 'map',
             style: 'https://tiles.openfreemap.org/styles/positron',
-            center: [0, 0],
-            zoom: 5,
-            pitch: 0,
+            center: [-106.252830244244, 34.519426931069866],
+            zoom: 6,
+            pitch: 100,
             bearing: 0
         });
         window.map = map;   // exposes map to the browser console for debugging
@@ -42,25 +71,41 @@
                 type: 'geojson',
                 data: 'data/popul_byco2018.geojson'
             });
-
+          
+                    
             map.addLayer({
                 id: 'county_pop', type: 'fill', source: 'county_pop',
-                paint: { }
+                paint: {
+                    'fill-color': '#FFC30B',
+                    'fill-opacity': 0.2
+                 }
             });
 
             map.addLayer({
                 id: 'county_lines', type: 'line', source: 'county_pop',
-                paint: { }
+                paint: { 
+                     'line-color': '#3F9B0B',
+                    'line-width': 2
+                }
             });
 
         // TODO: Update the correct popup fields
         map.on('click', 'county_pop', function (e) {
                 new maplibregl.Popup()
                     .setLngLat(e.lngLat)
-                    .setHTML(`Name: ${e.features[0].properties.name}<br>
-                    Population: ${e.features[0].properties.population}`)
+                    .setHTML(`Name: ${e.features[0].properties.cowntee_NA}<br>
+                    Population: ${e.features[0].properties.popul_byco}`)
                     .addTo(map);
             });
+            map.on('load', function () {
+    map.addControl(new maplibregl.NavigationControl(), 'top-left');
+    map.addControl(new maplibregl.GeolocateControl({
+        positionOptions: { enableHighAccuracy: true },
+        trackUserLocation: true
+    }), 'top-left');
+    map.addControl(new maplibregl.FullscreenControl(), 'top-right');
+    map.addControl(new maplibregl.ScaleControl(), 'bottom-left');
+});
         });
     </script>
 </body>
